@@ -1,0 +1,45 @@
+name:                diffusion-mirror
+version:             0.1.0.0
+github:              "djanatyn/diffusion-mirror"
+license:             BSD3
+author:              "Jonathan Strickland"
+maintainer:          "djanatyn@gmail.com"
+copyright:           "2018 Jonathan Strickland"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/djanatyn/diffusion-mirror#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- http-client-tls
+- wreq
+- aeson
+- lens
+- lens-aeson
+- containers
+- text
+- bytestring
+
+library:
+  source-dirs: src
+
+# executables:
+#   diffusion-mirror:
+#     main:                Main.hs
+#     source-dirs:         app
+#     ghc-options:
+#     - -threaded
+#     - -rtsopts
+#     - -with-rtsopts=-N
+#     dependencies:
+#     - diffusion-mirror
