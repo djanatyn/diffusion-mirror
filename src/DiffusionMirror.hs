@@ -27,8 +27,8 @@ loadConfig path = do
     contents <- B.readFile path
     maybe (error "could not decode") return $ decode contents
 
-createRepository :: Config -> Text -> IO (Response (Map String Value))
-createRepository config repo = asJSON =<< getWith opts url where
+createRepository :: Text -> Config -> IO (Response (Map String Value))
+createRepository repo config = asJSON =<< getWith opts url where
   opts = apiOpts & param "transactions[0][type]"  .~ ["vcs"]
                  & param "transactions[0][value]" .~ ["git"]
                  & param "transactions[1][type]"  .~ ["name"]
