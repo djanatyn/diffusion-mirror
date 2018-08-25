@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module DiffusionMirror where
 
@@ -17,24 +18,34 @@ data Config = Config
   { token  :: Text
   , apiURL :: Text } deriving (Generic, Show)
 
+data Repo = Repo
+  { phid :: Text 
+  , id   :: Text } deriving Show
+
 instance FromJSON Config
 
-apiOpts :: Network.Wreq.Options
-apiOpts = defaults
+instance FromJSON Repo where
+  parseJSON = withObject "response" $ \o -> do
+    phid <- o .: "result" >>= (.: "object") >>= (.: "phid")
+    id   <- o .: "result" >>= (.: "object") >>= (.: "id")
+
+    return Repo{..}
 
 loadConfig :: FilePath -> IO Config
 loadConfig path = do
     contents <- B.readFile path
     maybe (error "could not decode") return $ decode contents
 
-createRepository :: Text -> Config -> IO (Response (Map String Value))
-createRepository repo config = asJSON =<< getWith opts url where
-  opts = apiOpts & param "transactions[0][type]"  .~ ["vcs"]
-                 & param "transactions[0][value]" .~ ["git"]
-                 & param "transactions[1][type]"  .~ ["name"]
-                 & param "transactions[1][value]" .~ [repo]
-                 & param "api.token" .~ [token config]
-  url = unpack $ apiURL config
+createRepository :: Text -> Config -> IO Repo
+createRepository repo config = do
+  response <- asJSON =<< getWith opts url 
+  return $ response ^. responseBody where
+    opts = defaults & param "transactions[0][type]"  .~ ["vcs"]
+                    & param "transactions[0][value]" .~ ["git"]
+                    & param "transactions[1][type]"  .~ ["name"]
+                    & param "transactions[1][value]" .~ [repo]
+                    & param "api.token" .~ [token config]
+    url = unpack $ apiURL config
 
 main :: IO ()
 main = do
