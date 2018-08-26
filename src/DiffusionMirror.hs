@@ -15,7 +15,7 @@ import           Network.Wreq
 
 data Config = Config
   { token  :: Text
-  , apiURL :: Text } deriving (Generic, Show)
+  , baseURI :: Text } deriving (Generic, Show)
 
 instance FromJSON Config
 
@@ -67,7 +67,7 @@ createRepository repo config = do
                     & param "transactions[1][type]"  .~ ["name"]
                     & param "transactions[1][value]" .~ [repo]
                     & param "api.token" .~ [token config]
-    url = unpack $ apiURL config
+    url = (unpack $ baseURI config) ++ "/api/diffusion.repository.edit"
 
 -- getURIs :: [Repo] -> Config -> IO (Response (Map String Value))
 -- getURIs phids config = do
