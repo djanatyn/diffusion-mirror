@@ -25,7 +25,6 @@ dependencies:
 - wreq
 - aeson
 - lens
-- lens-aeson
 - containers
 - text
 - bytestring

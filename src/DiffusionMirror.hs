@@ -6,7 +6,6 @@ module DiffusionMirror where
 
 import           Control.Lens
 import           Data.Aeson
-import           Data.Aeson.Lens
 import qualified Data.ByteString.Lazy as B
 import           Data.Map
 import           Data.Maybe
