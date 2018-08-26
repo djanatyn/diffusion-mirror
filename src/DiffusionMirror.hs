@@ -5,6 +5,7 @@
 module DiffusionMirror where
 
 import           Control.Lens
+import           Control.Monad
 import           Data.Aeson
 import qualified Data.ByteString.Lazy as B
 import           Data.Map
@@ -14,7 +15,7 @@ import           GHC.Generics
 import           Network.Wreq
 
 data Config = Config
-  { token  :: Text
+  { token   :: Text
   , baseURI :: Text } deriving (Generic, Show)
 
 instance FromJSON Config
@@ -30,6 +31,14 @@ data URI = URI
   , uriURL  :: Text } deriving Show
 
 data RepositoryEdit = RepositoryEdit Repo deriving Show
+data URIEdit = URIEdit [Value] deriving Show
+
+instance FromJSON URIEdit where
+  parseJSON = withObject "response" $ \o -> do
+    results <- o .: "result" >>= (.: "data")
+    uris <- mapM ((.: "attachments") >=> (.: "uris")) results
+
+    return (URIEdit uris)
 
 instance FromJSON RepositoryEdit where
   parseJSON = withObject "response" $ \o -> do
@@ -69,14 +78,14 @@ createRepository repo config = do
                     & param "api.token" .~ [token config]
     url = (unpack $ baseURI config) ++ "/api/diffusion.repository.edit"
 
--- getURIs :: [Repo] -> Config -> IO (Response (Map String Value))
--- getURIs phids config = do
---   response <- asJSON =<< getWith opts url
---   return $ response ^. responseBody where
---     url  = unpack $ apiURL config
---     opts = defaults & param "constraints[phids]" .~ [show $ fmap unpack phids]
---                     & param "attachments[uris]"  .~ ["true"]
---                     & param "api.token"          .~ [token config]
+getURIs :: [Repo] -> Config -> IO URIEdit
+getURIs phids config = do
+  response <- asJSON =<< getWith opts url
+  return $ response ^. responseBody where
+    url  = (unpack $ baseURI config) ++ "/api/diffusion.repository.search"
+    opts = defaults & param "constraints[phids]" .~ [pack . show $ fmap repoPHID phids]
+                    & param "attachments[uris]"  .~ ["true"]
+                    & param "api.token"          .~ [token config]
 
 main :: IO ()
 main = do
