@@ -67,8 +67,8 @@ loadConfig path = do
     contents <- B.readFile path
     maybe (error "could not decode") return $ decode contents
 
-createRepository :: Text -> Config -> IO RepositoryEdit
-createRepository repo config = do
+createRepository :: Config -> Text -> IO RepositoryEdit
+createRepository config repo = do
   response <- asJSON =<< getWith opts url
   return $ response ^. responseBody where
     opts = defaults & param "transactions[0][type]"  .~ ["vcs"]
@@ -78,8 +78,8 @@ createRepository repo config = do
                     & param "api.token" .~ [token config]
     url = (unpack $ baseURI config) ++ "/api/diffusion.repository.edit"
 
-getURIs :: [Repo] -> Config -> IO URIEdit
-getURIs phids config = do
+getURIs :: Config -> [Repo] -> IO URIEdit
+getURIs config phids = do
   response <- asJSON =<< getWith opts url
   return $ response ^. responseBody where
     url  = (unpack $ baseURI config) ++ "/api/diffusion.repository.search"
