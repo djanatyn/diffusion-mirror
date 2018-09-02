@@ -21,11 +21,9 @@ description:         Please see the README on GitHub at <https://github.com/djan
 
 dependencies:
 - base >= 4.7 && < 5
-- http-client-tls
 - wreq
 - aeson
 - lens
-- containers
 - text
 - bytestring
 
