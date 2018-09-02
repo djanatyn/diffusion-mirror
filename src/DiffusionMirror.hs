@@ -7,8 +7,8 @@ module DiffusionMirror where
 import           Control.Lens
 import           Control.Monad
 import           Data.Aeson
-import qualified Data.ByteString.Lazy as B
-import           Data.Map
+import qualified Data.ByteString.Char8 as B
+import qualified Data.ByteString.Lazy  as BL
 import           Data.Maybe
 import           Data.Text
 import           GHC.Generics
@@ -24,28 +24,6 @@ data Repo = Repo
   { repoPHID :: Text
   , repoID   :: Int } deriving Show
 
-data URI = URI
-  { uriID   :: Int
-  , uriPHID :: Text
-  , uriRepo :: Text
-  , uriURL  :: Text } deriving Show
-
-data RepositoryEdit = RepositoryEdit Repo deriving Show
-data URIEdit = URIEdit [Value] deriving Show
-
-instance FromJSON URIEdit where
-  parseJSON = withObject "response" $ \o -> do
-    results <- o .: "result" >>= (.: "data")
-    uris <- mapM ((.: "attachments") >=> (.: "uris")) results
-
-    return (URIEdit uris)
-
-instance FromJSON RepositoryEdit where
-  parseJSON = withObject "response" $ \o -> do
-    repo <- o .: "result" >>= (.: "object")
-
-    return (RepositoryEdit repo)
-
 instance FromJSON Repo where
   parseJSON = withObject "response" $ \o -> do
     repoPHID <- o .: "phid"
@@ -53,18 +31,43 @@ instance FromJSON Repo where
 
     return Repo{..}
 
-instance FromJSON URI where
-    parseJSON = withObject "uri" $ \o -> do
-      uriID   <- o .: "id"
-      uriPHID <- o .: "phid"
-      uriURL  <- o .: "fields" >>= (.: "uri") >>= (.: "effective")
-      uriRepo <- o .: "fields" >>= (.: "repositoryPHID")
+data URI = URI
+  { uriID   :: Text
+  , uriPHID :: Text
+  , uriRepo :: Text
+  , uriURL  :: Text } deriving Show
 
-      return URI{..}
+instance FromJSON URI where
+  parseJSON = withObject "uri" $ \o -> do
+    uriID   <- o .: "id"
+    uriPHID <- o .: "phid"
+    uriURL  <- o .: "fields" >>= (.: "uri") >>= (.: "effective")
+    uriRepo <- o .: "fields" >>= (.: "repositoryPHID")
+
+    return URI{..}
+
+data RepositoryEdit = RepositoryEdit
+  { repo :: Repo } deriving Show
+
+instance FromJSON RepositoryEdit where
+  parseJSON = withObject "response" $ \o -> do
+    repo <- o .: "result" >>= (.: "object")
+
+    return RepositoryEdit{..}
+
+data URIEdit = URIEdit
+  { uris :: [URI] } deriving Show
+
+instance FromJSON URIEdit where
+  parseJSON = withObject "response" $ \o -> do
+    results <- o .: "result" >>= (.: "data")
+    uris    <- mapM ((.: "attachments") >=> (.: "uris") >=> (.: "uris")) results
+
+    return URIEdit{uris = (join uris)}
 
 loadConfig :: FilePath -> IO Config
 loadConfig path = do
-    contents <- B.readFile path
+    contents <- BL.readFile path
     maybe (error "could not decode") return $ decode contents
 
 createRepository :: Config -> Text -> IO RepositoryEdit
@@ -78,14 +81,19 @@ createRepository config repo = do
                     & param "api.token" .~ [token config]
     url = (unpack $ baseURI config) ++ "/api/diffusion.repository.edit"
 
+-- for phabricator's API requirements
+genParameters :: String -> [B.ByteString]
+genParameters p = fmap (\n -> B.pack $ "constraints[" ++ p ++ "][" ++ show n ++  "]") [0..]
+
 getURIs :: Config -> [Repo] -> IO URIEdit
-getURIs config phids = do
-  response <- asJSON =<< getWith opts url
+getURIs config repos = do
+  response <- asJSON =<< post url args
   return $ response ^. responseBody where
-    url  = (unpack $ baseURI config) ++ "/api/diffusion.repository.search"
-    opts = defaults & param "constraints[phids]" .~ [pack . show $ fmap repoPHID phids]
-                    & param "attachments[uris]"  .~ ["true"]
-                    & param "api.token"          .~ [token config]
+    url         = (unpack $ baseURI config) ++ "/api/diffusion.repository.search"
+    constraints = Prelude.zipWith (:=) (genParameters "phids") (fmap repoPHID repos)
+    args        =
+      [ "api.token" := token config
+      , "attachments[uris]" := B.pack "True" ] ++ constraints
 
 main :: IO ()
 main = do
