@@ -113,6 +113,13 @@ makeReadOnly config uri = do
       , "transactions[0][type]" := B.pack "io" 
       , "transactions[0][value]" := B.pack "read" ]
 
+createMirror :: Config -> MirrorRepo -> IO ()
+createMirror config mirror = do
+  pRepo <- repo <$> createRepository config (mirrorName mirror)
+  pURIs <- uris <$> getURIs config [pRepo]
+
+  mapM_ (makeReadOnly config) pURIs
+
 main :: IO ()
 main = do
   return ()
