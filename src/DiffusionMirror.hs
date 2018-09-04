@@ -14,8 +14,15 @@ import           Data.Text
 import           GHC.Generics
 import           Network.Wreq
 
+data MirrorRepo = MirrorRepo
+  { mirrorURI  :: Text
+  , mirrorName :: Text } deriving (Generic, Show)
+
+instance FromJSON MirrorRepo
+
 data Config = Config
   { token   :: Text
+  , mirrors :: [MirrorRepo]
   , baseURI :: Text } deriving (Generic, Show)
 
 instance FromJSON Config
