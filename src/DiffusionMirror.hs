@@ -95,6 +95,17 @@ getURIs config repos = do
       [ "api.token" := token config
       , "attachments[uris]" := B.pack "True" ] ++ constraints
 
+makeReadOnly :: Config -> URI -> IO BL.ByteString
+makeReadOnly config uri = do
+  response <- post url args 
+  return $ response ^. responseBody where
+    url = (unpack $ baseURI config) ++ "/api/diffusion.uri.edit"
+    args =
+      [ "api.token" := token config
+      , "objectIdentifier" := (uriPHID uri)
+      , "transactions[0][type]" := B.pack "io" 
+      , "transactions[0][value]" := B.pack "read" ]
+
 main :: IO ()
 main = do
   return ()
