@@ -102,23 +102,63 @@ getURIs config repos = do
       [ "api.token" := token config
       , "attachments[uris]" := B.pack "True" ] ++ constraints
 
-makeReadOnly :: Config -> URI -> IO BL.ByteString
-makeReadOnly config uri = do
-  response <- post url args 
+
+setMirrorURI :: Config -> (MirrorRepo, Repo) -> IO BL.ByteString
+setMirrorURI config (mirrorRepo, repo) = do
+  response <- post url args
+  return $ response ^. responseBody where
+    url  = (unpack $ baseURI config) ++ "/api/diffusion.uri.edit"
+    args =
+      [ "api.token"              := token config
+      , "transactions[0][type]"  := B.pack "repository"
+      , "transactions[0][value]" := (repoPHID repo)
+      , "transactions[1][type]"  := B.pack "uri"
+      , "transactions[1][value]" := mirrorURI mirrorRepo
+      , "transactions[2][type]"  := B.pack "io"
+      , "transactions[2][value]" := B.pack "observe" ]
+
+setURIReadOnly :: Config -> URI -> IO BL.ByteString
+setURIReadOnly config uri = do
+  response <- post url args
   return $ response ^. responseBody where
     url = (unpack $ baseURI config) ++ "/api/diffusion.uri.edit"
     args =
       [ "api.token" := token config
       , "objectIdentifier" := (uriPHID uri)
-      , "transactions[0][type]" := B.pack "io" 
+      , "transactions[0][type]" := B.pack "io"
       , "transactions[0][value]" := B.pack "read" ]
 
-createMirror :: Config -> MirrorRepo -> IO ()
-createMirror config mirror = do
-  pRepo <- repo <$> createRepository config (mirrorName mirror)
-  pURIs <- uris <$> getURIs config [pRepo]
+activateRepository :: Config -> Repo -> IO BL.ByteString
+activateRepository config repo = do
+  response <- post url args
+  return $ response ^. responseBody where
+    url = (unpack $ baseURI config) ++ "/api/diffusion.repository.edit"
+    args =
+      [ "api.token" := token config
+      , "objectIdentifier" := (repoPHID repo)
+      , "transactions[0][type]" := B.pack "status"
+      , "transactions[0][value]" := B.pack "active" ]
 
-  mapM_ (makeReadOnly config) pURIs
+
+setReposReadOnly :: Config -> [Repo] -> IO ()
+setReposReadOnly config repos = do
+  repoURIs <- uris <$> getURIs config repos
+  mapM_ (setURIReadOnly config) repoURIs
+
+createMirrors :: Config -> IO [Repo]
+createMirrors config = do
+  pRepos <- mapM (createRepository config . mirrorName) (mirrors config)
+  setReposReadOnly config (repo <$> pRepos)
+
+  return $ repo <$> pRepos
+
+mirrorConfig :: Config -> IO [Repo]
+mirrorConfig config = do
+  newRepos <- createMirrors config
+  mapM_ (setMirrorURI config) $ Prelude.zip (mirrors config) newRepos
+  mapM_ (activateRepository config) $ newRepos
+
+  return newRepos
 
 main :: IO ()
 main = do
