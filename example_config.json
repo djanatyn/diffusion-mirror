@@ -1,0 +1,110 @@
+{
+  "token": "api-xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "baseURI": "https://phabricator.flowercluster.io",
+  "mirrors": [
+    {
+      "mirrorURI": "https://github.com/djanatyn/game-of-life.git",
+      "mirrorName": "djanatyn/game-of-life"
+    },
+    {
+      "mirrorURI": "https://github.com/ctrlpvim/ctrlp.vim",
+      "mirrorName": "ctrlpvim/ctrlp.vim"
+    },
+    {
+      "mirrorURI": "https://github.com/kien/rainbow_parentheses.vim",
+      "mirrorName": "kien/rainbow_parentheses.vim"
+    },
+    {
+      "mirrorURI": "https://github.com/bling/vim-airline",
+      "mirrorName": "bling/vim-airline"
+    },
+    {
+      "mirrorURI": "https://github.com/vim-airline/vim-airline-themes",
+      "mirrorName": "vim-airline/vim-airline-themes"
+    },
+    {
+      "mirrorURI": "https://github.com/tpope/vim-endwise.git",
+      "mirrorName": "tpope/vim-endwise.git"
+    },
+    {
+      "mirrorURI": "https://github.com/tpope/vim-dispatch.git",
+      "mirrorName": "tpope/vim-dispatch"
+    },
+    {
+      "mirrorURI": "https://github.com/elzr/vim-json.git",
+      "mirrorName": "elzr/vim-json"
+    },
+    {
+      "mirrorURI": "https://github.com/plasticboy/vim-markdown.git",
+      "mirrorName": "plasticboy/vim-markdown"
+    },
+    {
+      "mirrorURI": "https://github.com/tpope/vim-fugitive.git",
+      "mirrorName": "tpope/vim-fugitive"
+    },
+    {
+      "mirrorURI": "https://github.com/dag/vim2hs.git",
+      "mirrorName": "dag/vim2hs"
+    },
+    {
+      "mirrorURI": "https://github.com/airblade/vim-gitgutter.git",
+      "mirrorName": "airblade/vim-gitgutter"
+    },
+    {
+      "mirrorURI": "https://github.com/tpope/vim-surround.git",
+      "mirrorName": "tpope/vim-surround"
+    },
+    {
+      "mirrorURI": "https://github.com/tpope/vim-repeat.git",
+      "mirrorName": "tpope/vim-repeat"
+    },
+    {
+      "mirrorURI": "https://github.com/tpope/vim-commentary.git",
+      "mirrorName": "tpope/vim-commentary"
+    },
+    {
+      "mirrorURI": "https://github.com/shougo/unite.vim.git",
+      "mirrorName": "shougo/unite.vim"
+    },
+    {
+      "mirrorURI": "https://github.com/Shougo/vimproc.vim.git",
+      "mirrorName": "Shougo/vimproc.vim"
+    },
+    {
+      "mirrorURI": "https://github.com/Shougo/denite.nvim.git",
+      "mirrorName": "Shougo/denite.nvim"
+    },
+    {
+      "mirrorURI": "https://github.com/chemzqm/denite-extra.git",
+      "mirrorName": "chemzqm/denite-extra"
+    },
+    {
+      "mirrorURI": "https://github.com/chemzqm/vim-easygit.git",
+      "mirrorName": "chemzqm/vim-easygit"
+    },
+    {
+      "mirrorURI": "https://github.com/chemzqm/denite-git.git",
+      "mirrorName": "chemzqm/denite-git"
+    },
+    {
+      "mirrorURI": "https://github.com/mhartington/oceanic-next.git",
+      "mirrorName": "mhartington/oceanic-next"
+    },
+    {
+      "mirrorURI": "https://github.com/kassio/neoterm.git",
+      "mirrorName": "kassio/neoterm"
+    },
+    {
+      "mirrorURI": "https://github.com/wincent/ferret.git",
+      "mirrorName": "wincent/ferret"
+    },
+    {
+      "mirrorURI": "https://github.com/wincent/loupe.git",
+      "mirrorName": "wincent/loupe"
+    },
+    {
+      "mirrorURI": "https://github.com/sbdchd/neoformat.git",
+      "mirrorName": "sbdchd/neoformat"
+    }
+  ]
+}
